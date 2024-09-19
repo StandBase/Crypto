@@ -24,7 +24,7 @@
     <script>
         // Загрузка данных из localStorage
         let balance = localStorage.getItem('balance') ? parseInt(localStorage.getItem('balance')) : 0;
-        let clickValue = 1; // Значение клика
+        let clickValue = localStorage.getItem('clickValue') ? parseInt(localStorage.getItem('clickValue')) : 1; // Значение клика
         let upgradeCost = localStorage.getItem('upgradeCost') ? parseInt(localStorage.getItem('upgradeCost')) : 5; // Стоимость апгрейда
 
         // Отображение начальных значений
@@ -53,6 +53,7 @@
 
                 // Сохраняем данные в localStorage
                 localStorage.setItem('balance', balance);
+                localStorage.setItem('clickValue', clickValue);
                 localStorage.setItem('upgradeCost', upgradeCost);
             } else {
                 alert('Недостаточно средств для апгрейда!');
