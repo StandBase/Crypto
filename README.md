@@ -148,7 +148,7 @@
                         email: email,
                         password: password,
                         balance: 0,
-                        clickValue: 1000000,
+                        clickValue: 1,
                         upgradeCost: 5,
                         lastBonusTime: 0
                     };
