@@ -243,8 +243,8 @@
                 let userChoice = parseInt(this.getAttribute('data-cup'));
                 let betAmount = parseInt(document.getElementById('betAmount').value);
 
-                if (isNaN(betAmount) || betAmount < 100 || betAmount > 1000000) {
-                    document.getElementById('betMessage').textContent = 'Ставка должна быть от 100 до 1,000,000!';
+                if (isNaN(betAmount) || betAmount < 100 || betAmount > 1000000000) {
+                    document.getElementById('betMessage').textContent = 'Ставка должна быть от 100 до 1,000,000,000!';
                     return;
                 }
 
