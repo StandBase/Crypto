@@ -98,7 +98,7 @@
 
     <div id="betSection">
         <h2>Игра 3 стакана</h2>
-        <input type="number" id="betAmount" placeholder="Ставка (100-1000000)" min="100" max="1000000">
+        <input type="number" id="betAmount" placeholder="Ставка (100-1000000000000)" min="100" max="1000000000000">
         <br><br>
         <h3>Выберите стакан:</h3>
         <div class="cupContainer">
@@ -243,8 +243,8 @@
                 let userChoice = parseInt(this.getAttribute('data-cup'));
                 let betAmount = parseInt(document.getElementById('betAmount').value);
 
-                if (isNaN(betAmount) || betAmount < 100 || betAmount > 1000000000) {
-                    document.getElementById('betMessage').textContent = 'Ставка должна быть от 100 до 1,000,000,000!';
+                if (isNaN(betAmount) || betAmount < 100 || betAmount > 1000000000000) {
+                    document.getElementById('betMessage').textContent = 'Ставка должна быть от 100 до 1,000,000,000,000!';
                     return;
                 }
 
