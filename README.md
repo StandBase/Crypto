@@ -2,277 +2,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Баланс с регистрацией и входом</title>
+    <title>Баланс</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
             text-align: center;
-            margin-top: 50px;
+            margin: 50px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b); /* Градиент фона */
+            color: white; /* Цвет текста */
         }
-        button, input {
-            padding: 8px 16px;
-            font-size: 14px;
-            margin-top: 10px;
+        #balance {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin: 10px;
+            cursor: pointer;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: background 0.3s;
         }
-        .gradient-button {
-            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+        #upgrade {
+            background: linear-gradient(to right, #4caf50, #81c784); /* Градиент кнопки апгрейда */
             color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        .gradient-button:hover {
-            transform: scale(1.05);
+        #add-money {
+            background: linear-gradient(to right, #007bff, #5cb85c); /* Градиент кнопки добавления */
+            color: white;
         }
-        .click-button {
-            background: linear-gradient(90deg, #4caf50, #81c784);
+        #daily-bonus {
+            background: linear-gradient(to right, #ff9800, #ffc107); /* Градиент кнопки бонуса */
+            color: white;
         }
-        input {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 200px;
+        #withdraw {
+            background: linear-gradient(to right, #f44336, #e57373); /* Градиент кнопки вывода */
+            color: white;
         }
-        #bonusMessage {
-            color: red;
+        button:hover {
+            opacity: 0.9; /* Эффект наведения */
+        }
+        #click-value {
+            font-size: 1.5em;
             margin-top: 20px;
         }
-        #authSection, #gameSection, #betSection {
-            margin-top: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        #gameSection, #betSection {
+        #notification {
             display: none;
-        }
-        .cupButton {
-            background-color: #007bff;
-            color: white;
-            margin: 5px;
-            padding: 6px 12px;
-            width: 100px;
-        }
-        .cupButton:hover {
-            background-color: #0056b3;
-        }
-        .cupContainer {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="authSection">
-        <h2>Регистрация</h2>
-        <input type="text" id="regLogin" placeholder="Логин" required>
-        <input type="email" id="regEmail" placeholder="Почта" required>
-        <input type="password" id="regPassword" placeholder="Пароль" required>
-        <button class="gradient-button" id="registerButton">Зарегистрироваться</button>
 
-        <h2>Вход</h2>
-        <input type="text" id="loginEmail" placeholder="Логин/Почта" required>
-        <input type="password" id="loginPassword" placeholder="Пароль" required>
-        <button class="gradient-button" id="loginButton">Войти</button>
-        
-        <p id="authMessage" style="color: red;"></p>
-    </div>
-
-    <div id="gameSection">
-        <h1>Ваш баланс: <span id="balance">0</span></h1>
-        <h2>Клики за раз: <span id="clickValue">1</span></h2>
-        <button class="click-button" id="increaseButton">Клик</button>
-        <br><br>
-        <button class="gradient-button" id="upgradeButton">Купить апгрейд (<span id="upgradeCost">5</span> монет, +2 клика)</button>
-        <br><br>
-        <button class="gradient-button" id="bonusButton">Получить ежедневный бонус</button>
-        <button class="gradient-button" id="playCupsButton">Играть в 3 стакана</button>
-        <p id="bonusMessage"></p>
-        <button class="gradient-button" id="logoutButton">Выйти</button>
-    </div>
-
-    <div id="betSection">
-        <h2>Игра 3 стакана</h2>
-        <input type="number" id="betAmount" placeholder="Ставка (100-1000000000000)" min="100" max="1000000000000">
-        <br><br>
-        <h3>Выберите стакан:</h3>
-        <div class="cupContainer">
-            <button class="cupButton" data-cup="0">Стакан 1</button>
-            <button class="cupButton" data-cup="1">Стакан 2</button>
-            <button class="cupButton" data-cup="2">Стакан 3</button>
-        </div>
-        <p id="betMessage"></p>
-        <button class="gradient-button" id="backToGameButton">Назад в игру</button>
-    </div>
+    <div id="balance">Баланс: $0</div>
+    <button id="add-money">Клик</button>
+    <button id="upgrade">Апгрейд ($5)</button>
+    <button id="daily-bonus">Получить ежедневный бонус</button>
+    <button id="withdraw">Вывод средств</button>
+    <div id="click-value">Каждый клик дает: $1</div>
+    <div id="notification"></div>
 
     <script>
-        let currentUser = localStorage.getItem('currentUser');
+        let balance = parseInt(localStorage.getItem('balance')) || 0; // Загрузка баланса из локального хранилища
+        let clickValue = parseInt(localStorage.getItem('clickValue')) || 1; // Загрузка значения клика из локального хранилища
+        let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 5; // Загрузка стоимости апгрейда
+        let lastBonusDate = localStorage.getItem('lastBonusDate') || null; // Дата последнего получения бонуса
 
-        if (currentUser) {
-            showGameSection();
-        }
+        // Обновляем текстовые значения на странице
+        updateBalance();
+        updateClickValue();
+        updateUpgradeButton();
 
-        function showGameSection() {
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('gameSection').style.display = 'block';
-            loadGameData();
-        }
+        document.getElementById('add-money').addEventListener('click', function() {
+            balance += clickValue; // Увеличиваем баланс на значение клика
+            updateBalance();
+        });
 
-        function loadGameData() {
-            currentUser = JSON.parse(localStorage.getItem(localStorage.getItem('currentUser')));
-            document.getElementById('balance').textContent = currentUser.balance;
-            document.getElementById('clickValue').textContent = currentUser.clickValue;
-            document.getElementById('upgradeCost').textContent = currentUser.upgradeCost;
-        }
-
-        function saveGameData() {
-            localStorage.setItem(currentUser.email, JSON.stringify(currentUser));
-        }
-
-        document.getElementById('registerButton').addEventListener('click', function() {
-            let login = document.getElementById('regLogin').value;
-            let email = document.getElementById('regEmail').value;
-            let password = document.getElementById('regPassword').value;
-
-            if (login && email && password) {
-                if (localStorage.getItem(email)) {
-                    document.getElementById('authMessage').textContent = 'Пользователь с такой почтой уже существует!';
-                } else {
-                    let user = {
-                        login: login,
-                        email: email,
-                        password: password,
-                        balance: 0,
-                        clickValue: 1,
-                        upgradeCost: 5,
-                        lastBonusTime: 0
-                    };
-                    localStorage.setItem(email, JSON.stringify(user));
-                    document.getElementById('authMessage').textContent = 'Регистрация успешна! Войдите в систему.';
-                }
+        document.getElementById('upgrade').addEventListener('click', function() {
+            if (balance >= upgradeCost) { // Проверяем, достаточно ли средств
+                balance -= upgradeCost; // Уменьшаем баланс на стоимость апгрейда
+                clickValue++; // Увеличиваем значение клика
+                upgradeCost = Math.round(upgradeCost * 1.5); // Увеличиваем стоимость апгрейда на 50%
+                updateBalance();
+                updateUpgradeButton(); // Обновляем текст кнопки апгрейда
+                updateClickValue(); // Обновляем текст о значении клика
+                showNotification('Апгрейд успешен! Теперь каждый клик дает $' + clickValue);
             } else {
-                document.getElementById('authMessage').textContent = 'Заполните все поля!';
+                showNotification('Недостаточно средств для апгрейда!', true);
             }
         });
 
-        document.getElementById('loginButton').addEventListener('click', function() {
-            let loginEmail = document.getElementById('loginEmail').value;
-            let password = document.getElementById('loginPassword').value;
+        document.getElementById('daily-bonus').addEventListener('click', function() {
+            claimDailyBonus();
+        });
 
-            if (loginEmail && password) {
-                let user = JSON.parse(localStorage.getItem(loginEmail)) || null;
-                if (!user) {
-                    for (let key in localStorage) {
-                        if (localStorage.hasOwnProperty(key)) {
-                            let u = JSON.parse(localStorage.getItem(key));
-                            if (u && (u.login === loginEmail || u.email === loginEmail)) {
-                                user = u;
-                                break;
-                            }
-                        }
-                    }
-                }
+        document.getElementById('withdraw').addEventListener('click', function() {
+            showNotification('Функция временно недоступна', true);
+        });
 
-                if (user && user.password === password) {
-                    localStorage.setItem('currentUser', user.email);
-                    currentUser = user;
-                    showGameSection();
-                } else {
-                    document.getElementById('authMessage').textContent = 'Неверный логин или пароль!';
+        // Функция для получения ежедневного бонуса
+        function claimDailyBonus() {
+            const today = new Date().toDateString();
+            if (lastBonusDate !== today) {
+                let bonusChance = Math.random();
+                if (bonusChance < 0.10) { // 10% шанс на 90к
+                    balance += 90000;
+                    showNotification('Поздравляем! Вы получили $90,000 в качестве бонуса!');
+                } else if (bonusChance < 0.21) { // 11% шанс на 80к
+                    balance += 80000;
+                    showNotification('Поздравляем! Вы получили $80,000 в качестве бонуса!');
+                } else if (bonusChance < 0.34) { // 13% шанс на 70к
+                    balance += 70000;
+                    showNotification('Поздравляем! Вы получили $70,000 в качестве бонуса!');
+                } else if (bonusChance < 0.50) { // 16% шанс на 60к
+                    balance += 60000;
+                    showNotification('Поздравляем! Вы получили $60,000 в качестве бонуса!');
+                } else if (bonusChance < 0.70) { // 20% шанс на 50к
+                    balance += 50000;
+                    showNotification('Поздравляем! Вы получили $50,000 в качестве бонуса!');
+                } else if (bonusChance < 0.85) { // 15% шанс на 30к
+                    balance += 30000;
+                    showNotification('Поздравляем! Вы получили $30,000 в качестве бонуса!');
+                } else { // 15% шанс на 10к
+                    balance += 10000;
+                    showNotification('Поздравляем! Вы получили $10,000 в качестве бонуса!');
                 }
+                lastBonusDate = today; // Обновляем дату последнего бонуса
+                updateBalance();
+                localStorage.setItem('lastBonusDate', lastBonusDate); // Сохраняем дату в локальном хранилище
             } else {
-                document.getElementById('authMessage').textContent = 'Заполните все поля!';
+                showNotification('Вы уже получили свой ежедневный бонус!', true);
             }
-        });
+        }
 
-        document.getElementById('increaseButton').addEventListener('click', function() {
-            currentUser.balance += currentUser.clickValue;
-            document.getElementById('balance').textContent = currentUser.balance;
-            saveGameData();
-        });
+        // Функция для обновления отображения баланса
+        function updateBalance() {
+            document.getElementById('balance').innerText = 'Баланс: $' + balance;
+            localStorage.setItem('balance', balance); // Сохранение баланса в локальном хранилище
+            localStorage.setItem('clickValue', clickValue); // Сохранение значения клика в локальном хранилище
+            localStorage.setItem('upgradeCost', upgradeCost); // Сохранение стоимости апгрейда в локальном хранилище
+        }
 
-        document.getElementById('upgradeButton').addEventListener('click', function() {
-            if (currentUser.balance >= currentUser.upgradeCost) {
-                currentUser.balance -= currentUser.upgradeCost;
-                currentUser.clickValue += 2;
-                currentUser.upgradeCost = Math.ceil(currentUser.upgradeCost * 1.5);
-                document.getElementById('balance').textContent = currentUser.balance;
-                document.getElementById('clickValue').textContent = currentUser.clickValue;
-                document.getElementById('upgradeCost').textContent = currentUser.upgradeCost;
-                saveGameData();
-            } else {
-                alert('Недостаточно средств для апгрейда!');
-            }
-        });
+        // Функция для обновления кнопки апгрейда
+        function updateUpgradeButton() {
+            document.getElementById('upgrade').innerText = 'Апгрейд ($' + Math.round(upgradeCost) + ')';
+        }
 
-        document.getElementById('bonusButton').addEventListener('click', function() {
-            let currentTime = new Date().getTime();
-            if (currentTime - currentUser.lastBonusTime >= 24 * 60 * 60 * 1000) {
-                let bonus = Math.floor(Math.random() * 50000) + 1;
-                currentUser.balance += bonus;
-                currentUser.lastBonusTime = currentTime;
-                document.getElementById('balance').textContent = currentUser.balance;
-                document.getElementById('bonusMessage').textContent = `Вы получили бонус: ${bonus} монет!`;
-                saveGameData();
-            } else {
-                let timeLeft = 24 * 60 * 60 * 1000 - (currentTime - currentUser.lastBonusTime);
-                let hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
-                document.getElementById('bonusMessage').textContent = `Бонус доступен через ${hoursLeft} часов.`;
-            }
-        });
+        // Функция для обновления значения клика
+        function updateClickValue() {
+            document.getElementById('click-value').innerText = 'Каждый клик дает: $' + clickValue;
+        }
 
-        document.getElementById('logoutButton').addEventListener('click', function() {
-            localStorage.removeItem('currentUser');
-            document.getElementById('authSection').style.display = 'block';
-            document.getElementById('gameSection').style.display = 'none';
-        });
-
-        document.getElementById('playCupsButton').addEventListener('click', function() {
-            document.getElementById('gameSection').style.display = 'none';
-            document.getElementById('betSection').style.display = 'block';
-        });
-
-        const cupsButtons = document.querySelectorAll('.cupButton');
-        cupsButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                let userChoice = parseInt(this.getAttribute('data-cup'));
-                let betAmount = parseInt(document.getElementById('betAmount').value);
-
-                if (isNaN(betAmount) || betAmount < 100 || betAmount > 1000000000000) {
-                    document.getElementById('betMessage').textContent = 'Ставка должна быть от 100 до 1,000,000,000,000!';
-                    return;
-                }
-
-                if (currentUser.balance < betAmount) {
-                    document.getElementById('betMessage').textContent = 'Недостаточно средств для ставки!';
-                    return;
-                }
-
-                let winningChance = Math.random() < 0.45;
-                let winningCup = winningChance ? userChoice : (Math.floor(Math.random() * 3));
-
-                if (userChoice === winningCup) {
-                    currentUser.balance += betAmount * 2;
-                    document.getElementById('betMessage').textContent = `Вы выиграли! Ваш новый баланс: ${currentUser.balance}`;
-                } else {
-                    currentUser.balance -= betAmount;
-                    document.getElementById('betMessage').textContent = `Вы проиграли! Ваш новый баланс: ${currentUser.balance}`;
-                }
-
-                saveGameData();
-                document.getElementById('balance').textContent = currentUser.balance;
-            });
-        });
-
-        document.getElementById('backToGameButton').addEventListener('click', function() {
-            document.getElementById('betSection').style.display = 'none';
-            document.getElementById('gameSection').style.display = 'block';
-        });
+        // Функция для отображения уведомлений
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.innerText = message;
+            notification.style.display = 'block';
+            notification.style.color = isError ? 'red' : 'white';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
     </script>
+
 </body>
 </html>
